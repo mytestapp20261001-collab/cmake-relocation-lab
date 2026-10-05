@@ -22,7 +22,8 @@ jobs:
         with:
           python-version: '3.12.14'
       - name: Install pinned CMake binary
-        run: python -m pip install --disable-pip-version-check --only-binary=:all: --no-deps 'cmake==${{ matrix.cmake }}'
+        run: |
+          python -m pip install --disable-pip-version-check --only-binary=:all: --no-deps 'cmake==${{ matrix.cmake }}'
       - name: Record runtime and exact source
         run: |
           python --version
