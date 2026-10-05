@@ -1,0 +1,35 @@
+name: CMake relocation contract
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    name: CMake ${{ matrix.cmake }} / Linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake: ['3.31.10', '4.4.4']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+      - name: Install pinned CMake binary
+        run: python -m pip install --disable-pip-version-check --only-binary=:all: --no-deps 'cmake==${{ matrix.cmake }}'
+      - name: Record runtime and exact source
+        run: |
+          python --version
+          cmake --version
+          make --version
+          gcc --version
+          git rev-parse HEAD
+      - run: python -B -m unittest discover -s tests -v
+      - run: python -B lab.py --demo
+      - run: git diff --exit-code
